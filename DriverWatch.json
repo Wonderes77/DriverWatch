@@ -1,0 +1,785 @@
+[
+    {
+        "id": "c858fdd926a60eec",
+        "type": "tab",
+        "label": "DriverWatch FSM",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "76824934a0c1f42b",
+        "type": "mqtt in",
+        "z": "c858fdd926a60eec",
+        "name": "Recibir facción desde Python",
+        "topic": "rostro/faccion",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "mqtt_broker_driverwatch",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 180,
+        "y": 80,
+        "wires": [
+            [
+                "3d80c7308df5f888",
+                "40f0fe5ed025843f",
+                "aa3a15e9dddf2458"
+            ]
+        ]
+    },
+    {
+        "id": "3d80c7308df5f888",
+        "type": "debug",
+        "z": "c858fdd926a60eec",
+        "name": "Debug facción",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 430,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "aa3a15e9dddf2458",
+        "type": "ui_text",
+        "z": "c858fdd926a60eec",
+        "group": "ui_group_main",
+        "order": 1,
+        "width": 6,
+        "height": 1,
+        "name": "Facción detectada",
+        "label": "Facción:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "x": 430,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "40f0fe5ed025843f",
+        "type": "function",
+        "z": "c858fdd926a60eec",
+        "name": "Armar comando JSON para ESP32",
+        "func": "let faccion = String(msg.payload || '').toLowerCase().trim();\n\nlet buzzer = false;\nlet duracion = 1000;\n\nif (faccion === 'cansado' || faccion === 'bostezo') {\n    buzzer = true;\n    duracion = 1200;\n}\n\nmsg.topic = 'driverwatch/comando';\nmsg.payload = {\n    cmd: 'guardar_evento',\n    faccion: faccion,\n    confianza: 0.90,\n    timestamp: new Date().toISOString(),\n    buzzer: buzzer,\n    duracion_ms: duracion\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 140,
+        "wires": [
+            [
+                "6c491b5913d9dda0",
+                "0ecface4c9b65071"
+            ]
+        ]
+    },
+    {
+        "id": "0ecface4c9b65071",
+        "type": "debug",
+        "z": "c858fdd926a60eec",
+        "name": "Debug comando JSON",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 780,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "6c491b5913d9dda0",
+        "type": "mqtt out",
+        "z": "c858fdd926a60eec",
+        "name": "Enviar comando al ESP32",
+        "topic": "",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "application/json",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "mqtt_broker_driverwatch",
+        "x": 780,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "99be74514770f5df",
+        "type": "ui_button",
+        "z": "c858fdd926a60eec",
+        "name": "Buzzer ON",
+        "group": "ui_group_main",
+        "order": 2,
+        "width": 3,
+        "height": 1,
+        "label": "🔔 Buzzer ON",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "",
+        "topicType": "str",
+        "x": 170,
+        "y": 240,
+        "wires": [
+            [
+                "3dafff397f75e532"
+            ]
+        ]
+    },
+    {
+        "id": "28a3f17f06e0a285",
+        "type": "ui_button",
+        "z": "c858fdd926a60eec",
+        "name": "Buzzer OFF",
+        "group": "ui_group_main",
+        "order": 3,
+        "width": 3,
+        "height": 1,
+        "label": "🔕 Buzzer OFF",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "",
+        "topicType": "str",
+        "x": 170,
+        "y": 300,
+        "wires": [
+            [
+                "a7b1b6d376e46a16"
+            ]
+        ]
+    },
+    {
+        "id": "3dafff397f75e532",
+        "type": "function",
+        "z": "c858fdd926a60eec",
+        "name": "JSON buzzer_on",
+        "func": "msg.topic = 'driverwatch/comando';\nmsg.payload = {\n    cmd: 'buzzer_on',\n    duracion_ms: 1500\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 240,
+        "wires": [
+            [
+                "6c491b5913d9dda0",
+                "0ecface4c9b65071"
+            ]
+        ]
+    },
+    {
+        "id": "a7b1b6d376e46a16",
+        "type": "function",
+        "z": "c858fdd926a60eec",
+        "name": "JSON buzzer_off",
+        "func": "msg.topic = 'driverwatch/comando';\nmsg.payload = {\n    cmd: 'buzzer_off'\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 300,
+        "wires": [
+            [
+                "6c491b5913d9dda0",
+                "0ecface4c9b65071"
+            ]
+        ]
+    },
+    {
+        "id": "75498fd9c284c239",
+        "type": "ui_button",
+        "z": "c858fdd926a60eec",
+        "name": "Mostrar guardados",
+        "group": "ui_group_main",
+        "order": 4,
+        "width": 6,
+        "height": 1,
+        "label": "📋 Ver eventos fallback",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "",
+        "topicType": "str",
+        "x": 170,
+        "y": 360,
+        "wires": [
+            [
+                "f0698b9d0d627f81"
+            ]
+        ]
+    },
+    {
+        "id": "f0698b9d0d627f81",
+        "type": "function",
+        "z": "c858fdd926a60eec",
+        "name": "JSON mostrar_guardados",
+        "func": "msg.topic = 'driverwatch/comando';\nmsg.payload = {\n    cmd: 'mostrar_guardados'\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 360,
+        "wires": [
+            [
+                "6c491b5913d9dda0",
+                "0ecface4c9b65071"
+            ]
+        ]
+    },
+    {
+        "id": "9afa20fb9d4078ad",
+        "type": "inject",
+        "z": "c858fdd926a60eec",
+        "name": "Crear tabla eventos",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "0.8",
+        "topic": "CREATE TABLE IF NOT EXISTS eventos (id INTEGER PRIMARY KEY AUTOINCREMENT, origen TEXT, faccion TEXT, confianza REAL, buzzer INTEGER, duracion_ms INTEGER, estado_fsm TEXT, timestamp TEXT, recibido_en DATETIME DEFAULT CURRENT_TIMESTAMP);",
+        "x": 190,
+        "y": 430,
+        "wires": [
+            [
+                "7bece122a45beaeb"
+            ]
+        ]
+    },
+    {
+        "id": "7bece122a45beaeb",
+        "type": "sqlite",
+        "z": "c858fdd926a60eec",
+        "mydb": "sqlite_driverwatch_db",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "Inicializar BD",
+        "x": 460,
+        "y": 430,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8cdeea17e5310d9c",
+        "type": "mqtt in",
+        "z": "c858fdd926a60eec",
+        "name": "Estado ESP32",
+        "topic": "driverwatch/estado",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "mqtt_broker_driverwatch",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 150,
+        "y": 510,
+        "wires": [
+            [
+                "0958f00bb18efbd5",
+                "98d02d34f46a8987"
+            ]
+        ]
+    },
+    {
+        "id": "98d02d34f46a8987",
+        "type": "debug",
+        "z": "c858fdd926a60eec",
+        "name": "Debug estado raw",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 430,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "0958f00bb18efbd5",
+        "type": "json",
+        "z": "c858fdd926a60eec",
+        "name": "Parse estado JSON",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 410,
+        "y": 520,
+        "wires": [
+            [
+                "2ec85a12f6d1c25d"
+            ]
+        ]
+    },
+    {
+        "id": "2ec85a12f6d1c25d",
+        "type": "function",
+        "z": "c858fdd926a60eec",
+        "name": "Formatear estado UI",
+        "func": "let p = msg.payload || {};\nmsg.payload = `${p.estado || '---'} | ${p.detalle || 'sin detalle'} | WiFi:${p.wifi} | MQTT:${p.mqtt}`;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 520,
+        "wires": [
+            [
+                "1df02e1b34a9e598"
+            ]
+        ]
+    },
+    {
+        "id": "1df02e1b34a9e598",
+        "type": "ui_text",
+        "z": "c858fdd926a60eec",
+        "group": "ui_group_status",
+        "order": 1,
+        "width": 6,
+        "height": 2,
+        "name": "Texto estado",
+        "label": "Estado ESP32:",
+        "format": "{{msg.payload}}",
+        "layout": "col-center",
+        "className": "",
+        "style": false,
+        "x": 900,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "4593c64153ae77f3",
+        "type": "mqtt in",
+        "z": "c858fdd926a60eec",
+        "name": "Eventos ESP32",
+        "topic": "driverwatch/eventos",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "mqtt_broker_driverwatch",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 150,
+        "y": 610,
+        "wires": [
+            [
+                "350d2e181cb4ef1e",
+                "3c2a1d4f4c83091c"
+            ]
+        ]
+    },
+    {
+        "id": "3c2a1d4f4c83091c",
+        "type": "debug",
+        "z": "c858fdd926a60eec",
+        "name": "Debug evento raw",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 430,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "350d2e181cb4ef1e",
+        "type": "json",
+        "z": "c858fdd926a60eec",
+        "name": "Parse evento JSON",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 410,
+        "y": 620,
+        "wires": [
+            [
+                "8a24e33b3a1da44a",
+                "05c7705b484e71f9"
+            ]
+        ]
+    },
+    {
+        "id": "05c7705b484e71f9",
+        "type": "ui_text",
+        "z": "c858fdd926a60eec",
+        "group": "ui_group_status",
+        "order": 2,
+        "width": 6,
+        "height": 2,
+        "name": "Último evento",
+        "label": "Último evento:",
+        "format": "{{msg.payload.faccion}} | conf: {{msg.payload.confianza}} | buzzer: {{msg.payload.buzzer}}",
+        "layout": "col-center",
+        "className": "",
+        "style": false,
+        "x": 670,
+        "y": 670,
+        "wires": []
+    },
+    {
+        "id": "8a24e33b3a1da44a",
+        "type": "function",
+        "z": "c858fdd926a60eec",
+        "name": "Preparar INSERT SQLite",
+        "func": "let p = msg.payload || {};\nlet origen = (p.origen || 'esp32c3').replace(/'/g, \"''\");\nlet faccion = (p.faccion || '').replace(/'/g, \"''\");\nlet confianza = Number(p.confianza || 0);\nlet buzzer = p.buzzer ? 1 : 0;\nlet duracion = Number(p.duracion_ms || 0);\nlet estado = (p.estado_fsm || '').replace(/'/g, \"''\");\nlet timestamp = (p.timestamp || new Date().toISOString()).replace(/'/g, \"''\");\n\nmsg.topic = `INSERT INTO eventos (origen, faccion, confianza, buzzer, duracion_ms, estado_fsm, timestamp) VALUES ('${origen}', '${faccion}', ${confianza}, ${buzzer}, ${duracion}, '${estado}', '${timestamp}')`;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 690,
+        "y": 620,
+        "wires": [
+            [
+                "9415b96a3ababa6a"
+            ]
+        ]
+    },
+    {
+        "id": "9415b96a3ababa6a",
+        "type": "sqlite",
+        "z": "c858fdd926a60eec",
+        "mydb": "sqlite_driverwatch_db",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "Guardar evento",
+        "x": 930,
+        "y": 620,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "54cfacbe973aee1e",
+        "type": "mqtt in",
+        "z": "c858fdd926a60eec",
+        "name": "Eventos fallback ESP32",
+        "topic": "driverwatch/fallback",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "mqtt_broker_driverwatch",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 160,
+        "y": 720,
+        "wires": [
+            [
+                "2fc7766e42c10ed0",
+                "9e0b94648facaac8"
+            ]
+        ]
+    },
+    {
+        "id": "9e0b94648facaac8",
+        "type": "debug",
+        "z": "c858fdd926a60eec",
+        "name": "Debug fallback",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 420,
+        "y": 690,
+        "wires": []
+    },
+    {
+        "id": "2fc7766e42c10ed0",
+        "type": "json",
+        "z": "c858fdd926a60eec",
+        "name": "Parse fallback JSON",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 410,
+        "y": 730,
+        "wires": [
+            [
+                "bcd679a9e7fa234a"
+            ]
+        ]
+    },
+    {
+        "id": "bcd679a9e7fa234a",
+        "type": "function",
+        "z": "c858fdd926a60eec",
+        "name": "Formatear fallback UI",
+        "func": "let p = msg.payload || {};\n\nif (p.tipo === 'resumen_fallback') {\n    msg.payload = `📋 Eventos en fallback: ${p.total}`;\n} else if (p.tipo === 'fallback_vacio') {\n    msg.payload = '✅ No hay eventos en fallback';\n} else if (p.tipo === 'evento_fallback') {\n    msg.payload = `#${p.indice} | ${p.faccion} | conf: ${p.confianza} | buzzer: ${p.buzzer} | ${p.timestamp}`;\n} else {\n    msg.payload = JSON.stringify(p);\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 650,
+        "y": 730,
+        "wires": [
+            [
+                "5a859a29a35a5e55"
+            ]
+        ]
+    },
+    {
+        "id": "5a859a29a35a5e55",
+        "type": "ui_text",
+        "z": "c858fdd926a60eec",
+        "group": "2b0d34bcd735dd45",
+        "order": 1,
+        "width": 6,
+        "height": 2,
+        "name": "Eventos fallback",
+        "label": "Fallback:",
+        "format": "{{msg.payload}}",
+        "layout": "col-center",
+        "className": "",
+        "style": false,
+        "x": 900,
+        "y": 730,
+        "wires": []
+    },
+    {
+        "id": "6b1d7f5c9a8e4101",
+        "type": "ui_button",
+        "z": "c858fdd926a60eec",
+        "name": "Ver BD eventos",
+        "group": "ui_group_main",
+        "order": 5,
+        "width": 6,
+        "height": 1,
+        "label": "🗃️ Ver últimos eventos BD",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "",
+        "topicType": "str",
+        "x": 100,
+        "y": 820,
+        "wires": [
+            [
+                "c2a8e9d4f1b34702"
+            ]
+        ]
+    },
+    {
+        "id": "c2a8e9d4f1b34702",
+        "type": "function",
+        "z": "c858fdd926a60eec",
+        "name": "SQL últimos eventos",
+        "func": "msg.topic = `SELECT id, origen, faccion, confianza, buzzer, duracion_ms, estado_fsm, timestamp, recibido_en FROM eventos ORDER BY id DESC LIMIT 15;`;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 820,
+        "wires": [
+            [
+                "d4f7b2a6c9e15303"
+            ]
+        ]
+    },
+    {
+        "id": "d4f7b2a6c9e15303",
+        "type": "sqlite",
+        "z": "c858fdd926a60eec",
+        "mydb": "sqlite_driverwatch_db",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "Consultar BD eventos",
+        "x": 620,
+        "y": 820,
+        "wires": [
+            [
+                "e7c3a1b9d5f26404",
+                "f8d4c2b1a6e37505"
+            ]
+        ]
+    },
+    {
+        "id": "f8d4c2b1a6e37505",
+        "type": "debug",
+        "z": "c858fdd926a60eec",
+        "name": "Debug consulta BD",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 890,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "e7c3a1b9d5f26404",
+        "type": "function",
+        "z": "c858fdd926a60eec",
+        "name": "Formatear BD para UI",
+        "func": "let rows = msg.payload || [];\n\nif (!Array.isArray(rows) || rows.length === 0) {\n    msg.payload = 'Sin registros en la base de datos';\n    return msg;\n}\n\nlet texto = rows.map(r => {\n    return `#${r.id} | ${r.faccion} | conf:${r.confianza} | buzzer:${r.buzzer} | ${r.estado_fsm} | ${r.timestamp}`;\n}).join('\\n');\n\nmsg.payload = texto;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 890,
+        "y": 820,
+        "wires": [
+            [
+                "a9b8c7d6e5f40106"
+            ]
+        ]
+    },
+    {
+        "id": "a9b8c7d6e5f40106",
+        "type": "ui_text",
+        "z": "c858fdd926a60eec",
+        "group": "2b0d34bcd735dd45",
+        "order": 2,
+        "width": 6,
+        "height": 8,
+        "name": "Vista BD eventos",
+        "label": "Base de datos:",
+        "format": "<pre style=\"white-space: pre-wrap; font-size: 12px;\">{{msg.payload}}</pre>",
+        "layout": "col-center",
+        "className": "",
+        "style": false,
+        "x": 1140,
+        "y": 820,
+        "wires": []
+    },
+    {
+        "id": "mqtt_broker_driverwatch",
+        "type": "mqtt-broker",
+        "name": "HiveMQ Public",
+        "broker": "broker.hivemq.com",
+        "port": "1883",
+        "clientid": "nodered_driverwatch_fsm_001",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    },
+    {
+        "id": "ui_group_main",
+        "type": "ui_group",
+        "name": "Control principal",
+        "tab": "ui_tab_driverwatch",
+        "order": 1,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "sqlite_driverwatch_db",
+        "type": "sqlitedb",
+        "db": "C:\\Users\\soyje\\Desktop\\octavo\\base_de_datos\\driverwatch_eventos.db",
+        "mode": "RWC"
+    },
+    {
+        "id": "ui_group_status",
+        "type": "ui_group",
+        "name": "Estado ESP32",
+        "tab": "ui_tab_driverwatch",
+        "order": 2,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "2b0d34bcd735dd45",
+        "type": "ui_group",
+        "name": "Eventos Fallback",
+        "tab": "ui_tab_driverwatch",
+        "order": 3,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "ui_tab_driverwatch",
+        "type": "ui_tab",
+        "name": "DriverWatch",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "263177da96a18709",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6",
+            "node-red-node-sqlite": "2.0.1"
+        }
+    }
+]
