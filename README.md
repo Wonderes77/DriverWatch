@@ -19,7 +19,7 @@ El sistema está orientado a conductores de transporte pesado, repartidores y op
 | Alejandra Berenice Flores García | 22030008 |
 | Esmeralda Gómez Huerta | 22030010 |
 | Jean Paul Acosta Navarro | 22030001 |
-| Eber Jafet Rodríguez Valenciano | 22030004 |
+| Eber Jafet Rodríguez Valenciano | 22030017 |
 
 **Docente:** Osbaldo Aragón Banderas  
 **Materia:** Programación Avanzada — Ingeniería Mecatrónica  
